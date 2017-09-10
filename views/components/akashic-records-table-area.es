@@ -15,8 +15,14 @@ import { findDOMNode } from 'react-dom'
 import FontAwesome from 'react-fontawesome'
 import { dateToString } from '../../lib/utils'
 
-const { __, ipc } = window
+const { __, ipc, getStore } = window
 const {openExternal} = require('electron').shell
+
+
+function getNodeFromMapAndRoute(mapId, routeId) {
+  const mapData = getStore('fcd.map')
+  return mapData[mapId].route[routeId][1]
+}
 
 // import i18n from '../node_modules/i18n'
 // {__} = i18n
@@ -56,7 +62,13 @@ const AkashicRecordsTableTbodyItem = (props) => (
       props.data.map((item, index) => {
         if (index === 0 && props.rowChooseChecked[1]) {
           return (<td key={index}>{dateToString(new Date(item))}</td>)
-        } else if (props.contentType === 'attack' && props.tableTab[index+1] === '大破舰') {
+        } else if (props.contentType === 'attack' && props.tableTab[index + 1] === '地图点') {
+          const mapId = props.data[2].match(/\d+-\d+/)[0]
+          const routeId = item.split('(')[0]
+          return props.rowChooseChecked[index + 1] ?
+            (<td key={index}>{getNodeFromMapAndRoute(mapId, routeId)} {item}</td>) : null
+        }
+        } else if (props.contentType === 'attack' && props.tableTab[index + 1] === '大破舰') {
           return (props.rowChooseChecked[8]) ? (<td key={index} className="enable-auto-newline">{item}</td>) : null
         } else {
           return (props.rowChooseChecked[index+1]) ? (<td key={index}>{item}</td>) : null
